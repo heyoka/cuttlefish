@@ -314,7 +314,7 @@ load_schema(ParsedArgs) ->
 
 load_conf(ParsedArgs) ->
     ConfFiles = proplists:get_all_values(conf_file, ParsedArgs),
-    lager:debug("ConfFiles: ~p", [ConfFiles]),
+  lager:notice("ConfFiles: ~p", [ConfFiles]),
     case cuttlefish_conf:files(ConfFiles) of
         {errorlist, Errors} ->
             _ = [ lager:error(cuttlefish_error:xlate(E)) ||

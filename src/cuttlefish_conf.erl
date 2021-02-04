@@ -217,7 +217,9 @@ generate_comments(M) ->
                  [ ?FMT("  - ~s", [pretty_datatype(DT)])
                    || DT <- cuttlefish_mapping:datatype(M)]],
 
-    Doc = DocString ++ Default ++ Datatypes,
+  Env = [ "", ?FMT("ENV-Key: ~s", [cuttlefish_os_vars:env_key(cuttlefish_mapping:variable(M))])],
+
+  Doc = DocString ++ Default ++ Env ++ Datatypes,
     [ "## " ++ D || D <- Doc].
 
 -spec pretty_datatype(cuttlefish_datatypes:datatype() |
@@ -274,7 +276,7 @@ generate_element_test() ->
 
     GeneratedConf = generate_element(TestSchemaElement),
 
-    ?assertEqual(7, length(GeneratedConf)),
+  ?assertEqual(9, length(GeneratedConf)),
     ?assertEqual(
        "## Default ring creation size.  Make sure it is a power of 2,",
        lists:nth(1, GeneratedConf)
@@ -318,11 +320,11 @@ generate_conf_default_test() ->
     %% having to hardcode the line numbers into the lists:nth calls.
     ?assertEqual(
        "default.absent = 42",
-       lists:nth(4, GeneratedConf)
+    lists:nth(6, GeneratedConf)
       ),
     ?assertEqual(
        "default.present = 9001",
-       lists:nth(11, GeneratedConf)
+    lists:nth(13, GeneratedConf)
       ),
     ok.
 
@@ -343,10 +345,10 @@ generate_comments_test() ->
                                                                                    {doc, ["Hi!", "Bye!"]}
                                                                                   ]}),
     Comments = generate_comments(SchemaElement),
-    ?assertEqual(["## Hi!", "## Bye!", "## ", "## Acceptable values:", "##   - text"], Comments).
+  ?assertEqual(["## Hi!", "## Bye!", "##", "## ENV: CUTTLEFISH_DONT_CARE","##", "## Acceptable values:", "##   - text"], Comments).
 
 duplicates_test() ->
-    Conf = file("test/multi1.conf"),
+  Conf = file(cuttlefish_test_util:test_file("multi1.conf")),
     ?assertEqual(2, length(Conf)),
     ?assertEqual("3", proplists:get_value(["a","b","c"], Conf)),
     ?assertEqual("1", proplists:get_value(["a","b","d"], Conf)),
